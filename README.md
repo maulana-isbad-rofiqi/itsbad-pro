@@ -25,13 +25,21 @@ wrangler login
 wrangler deploy
 ```
 
-## Auto Deploy
+## Deploy ke Cloudflare Workers
 
-Push ke branch `main` akan otomatis deploy ke Cloudflare via GitHub Actions.
+### Persiapan
+1. **Install Wrangler**: `npm install -g wrangler`
+2. **Login ke Cloudflare**: `wrangler login` (akan buka browser untuk autentikasi)
+3. **Edit worker.js**: Ganti `userID` dan `proxyIP` dengan nilai Anda.
 
-[![Deploy to Cloudflare](https://github.com/maulana-isbad-rofiqi/itsbad-pro/actions/workflows/deploy.yml/badge.svg)](https://github.com/maulana-isbad-rofiqi/itsbad-pro/actions/workflows/deploy.yml)
+### Deploy
+1. Buka terminal di folder project (c:/itsbad-pro)
+2. Jalankan: `wrangler deploy`
+3. Wrangler akan deploy worker dan memberikan URL worker.
 
-Untuk deploy manual, klik tombol "Run workflow" di halaman Actions GitHub.
+### Verifikasi
+- Akses URL worker untuk melihat UI cyberpunk.
+- Test tunneling dengan client VLESS/Trojan.
 
 ## Penggunaan
 
