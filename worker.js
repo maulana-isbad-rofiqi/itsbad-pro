@@ -1,11 +1,33 @@
 // Declare userID and proxyIP at the top for easy editing
-let userID = 'your-uuid-here'; // Replace with your actual UUID
-let proxyIP = 'your-proxy-ip-here'; // Replace with your actual proxy server IP
+let userID = generateUUID(); // Auto-generated UUID
+let proxyIP = '139.185.50.5'; // Default proxy IP (Indonesia), can be changed via UI
 
 import { connect } from 'cloudflare:sockets';
 
+// Function to generate random UUID
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+// Proxy list by country (sample, can be expanded)
+const proxyList = {
+  'ID': ['139.185.50.5', '103.231.73.153'], // Indonesia
+  'SG': ['8.219.1.169', '43.156.116.194'], // Singapore
+  'US': ['104.234.36.27', '159.100.198.106'], // USA
+  'DE': ['91.107.189.69', '49.13.155.5'], // Germany
+  'JP': ['138.2.10.217', '217.142.230.253'], // Japan
+  // Add more as needed
+};
+
 // Cyberpunk-themed UI function
 function getItsbadUI(domain, uuid) {
+  const countries = Object.keys(proxyList);
+  const countryOptions = countries.map(country => `<option value="${country}">${country}</option>`).join('');
+
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -41,8 +63,16 @@ function getItsbadUI(domain, uuid) {
         <h1 class="text-6xl font-bold neon mb-8">ITSBAD PRO</h1>
         <div class="cyberpunk p-6 rounded-lg mb-6">
             <p class="text-xl mb-4">SYSTEM ONLINE</p>
-            <p class="text-lg mb-4">UUID: <code class="bg-gray-800 p-2 rounded">${uuid}</code></p>
-            <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mr-4" onclick="copyUUID('${uuid}')">Copy UUID</button>
+            <p class="text-lg mb-4">UUID: <code class="bg-gray-800 p-2 rounded" id="uuid">${uuid}</code></p>
+            <button class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mr-4" onclick="copyUUID()">Copy UUID</button>
+            <button class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded" onclick="regenerateUUID()">Regenerate UUID</button>
+        </div>
+        <div class="cyberpunk p-6 rounded-lg mb-6">
+            <label class="block text-lg mb-2">Select Proxy Country:</label>
+            <select id="countrySelect" class="bg-gray-800 text-green-400 p-2 rounded mb-4">
+                ${countryOptions}
+            </select>
+            <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onclick="changeProxy()">Change Proxy</button>
         </div>
         <div class="cyberpunk p-6 rounded-lg">
             <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-4" onclick="getVLESS()">Get VLESS Config</button>
@@ -50,22 +80,50 @@ function getItsbadUI(domain, uuid) {
         </div>
     </div>
     <script>
-        function copyUUID(uuid) {
-            navigator.clipboard.writeText(uuid);
+        let currentUUID = '${uuid}';
+        let currentProxy = '${proxyIP}';
+
+        function copyUUID() {
+            navigator.clipboard.writeText(currentUUID);
             alert('UUID copied!');
         }
+
+        function regenerateUUID() {
+            currentUUID = generateUUID();
+            document.getElementById('uuid').textContent = currentUUID;
+            alert('UUID regenerated!');
+        }
+
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        function changeProxy() {
+            const country = document.getElementById('countrySelect').value;
+            const proxies = ${JSON.stringify(proxyList)}[country];
+            if (proxies) {
+                currentProxy = proxies[Math.floor(Math.random() * proxies.length)];
+                alert('Proxy changed to: ' + currentProxy + ' (' + country + ')');
+            }
+        }
+
         function getVLESS() {
-            const config = 'vless://' + '${uuid}' + '@${domain}:443?type=ws&security=tls&sni=${domain}&path=/&host=${domain}#ITSBAD-PRO';
+            const config = 'vless://' + currentUUID + '@${domain}:443?type=ws&security=tls&sni=${domain}&path=/&host=${domain}#ITSBAD-PRO';
             navigator.clipboard.writeText(config);
             alert('VLESS Config copied!');
         }
+
         function getClash() {
             const config = \`proxies:
 - name: ITSBAD PRO
   type: vless
   server: ${domain}
   port: 443
-  uuid: ${uuid}
+  uuid: \${currentUUID}
   tls: true
   servername: ${domain}
   network: ws
