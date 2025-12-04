@@ -29,6 +29,10 @@ wrangler deploy
 
 Push ke branch `main` akan otomatis deploy ke Cloudflare via GitHub Actions.
 
+[![Deploy to Cloudflare](https://github.com/maulana-isbad-rofiqi/itsbad-pro/actions/workflows/deploy.yml/badge.svg)](https://github.com/maulana-isbad-rofiqi/itsbad-pro/actions/workflows/deploy.yml)
+
+Untuk deploy manual, klik tombol "Run workflow" di halaman Actions GitHub.
+
 ## Penggunaan
 
 - Akses root domain untuk UI.
